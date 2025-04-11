@@ -1,0 +1,1 @@
+sudo bash -c "$(curl -s https://raw.githubusercontent.com/asanseir724/56654456/main/full_install_with_https.sh)"

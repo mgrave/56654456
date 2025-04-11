@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}System Logs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">System Logs</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="logsTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="app-tab" data-bs-toggle="tab" data-bs-target="#app" type="button" role="tab" aria-controls="app" aria-selected="true">Application</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="telegram-tab" data-bs-toggle="tab" data-bs-target="#telegram" type="button" role="tab" aria-controls="telegram" aria-selected="false">Telegram</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="api-tab" data-bs-toggle="tab" data-bs-target="#api" type="button" role="tab" aria-controls="api" aria-selected="false">API</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab" aria-controls="payment" aria-selected="false">Payment</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="webhook-tab" data-bs-toggle="tab" data-bs-target="#webhook" type="button" role="tab" aria-controls="webhook" aria-selected="false">Webhook</button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="form-group mb-3">
+                <label for="logLines">Number of lines to show:</label>
+                <select class="form-control form-control-sm w-auto" id="logLines" onchange="changeLogLines(this.value)">
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                </select>
+            </div>
+            
+            <div class="form-group mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh(this.checked)">
+                    <label class="form-check-label" for="autoRefresh">
+                        Auto refresh logs (every 30 seconds)
+                    </label>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="logsTabContent">
+                <div class="tab-pane fade show active" id="app" role="tabpanel" aria-labelledby="app-tab">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between">
+                            <span>Application Logs</span>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="refreshLog('app')"><i data-feather="refresh-cw"></i> Refresh</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <pre class="log-container p-3" id="appLogContent">{{ logs.app }}</pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="telegram" role="tabpanel" aria-labelledby="telegram-tab">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between">
+                            <span>Telegram Bot Logs</span>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="refreshLog('telegram')"><i data-feather="refresh-cw"></i> Refresh</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <pre class="log-container p-3" id="telegramLogContent">{{ logs.telegram }}</pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="api" role="tabpanel" aria-labelledby="api-tab">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between">
+                            <span>API Logs</span>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="refreshLog('api')"><i data-feather="refresh-cw"></i> Refresh</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <pre class="log-container p-3" id="apiLogContent">{{ logs.api }}</pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between">
+                            <span>Payment Logs</span>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="refreshLog('payment')"><i data-feather="refresh-cw"></i> Refresh</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <pre class="log-container p-3" id="paymentLogContent">{{ logs.payment }}</pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="webhook" role="tabpanel" aria-labelledby="webhook-tab">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between">
+                            <span>Webhook Logs</span>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="refreshLog('webhook')"><i data-feather="refresh-cw"></i> Refresh</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <pre class="log-container p-3" id="webhookLogContent">{{ logs.webhook }}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">Log Management</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Download Logs</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin_download_log', log_type='app') }}" class="list-group-item list-group-item-action">
+                            <i data-feather="download"></i> Download Application Log
+                        </a>
+                        <a href="{{ url_for('admin_download_log', log_type='telegram') }}" class="list-group-item list-group-item-action">
+                            <i data-feather="download"></i> Download Telegram Bot Log
+                        </a>
+                        <a href="{{ url_for('admin_download_log', log_type='api') }}" class="list-group-item list-group-item-action">
+                            <i data-feather="download"></i> Download API Log
+                        </a>
+                        <a href="{{ url_for('admin_download_log', log_type='payment') }}" class="list-group-item list-group-item-action">
+                            <i data-feather="download"></i> Download Payment Log
+                        </a>
+                        <a href="{{ url_for('admin_download_log', log_type='webhook') }}" class="list-group-item list-group-item-action">
+                            <i data-feather="download"></i> Download Webhook Log
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5>Clear Logs</h5>
+                    <p class="text-danger">Warning: Clearing logs will permanently delete all log entries. This action cannot be undone.</p>
+                    <form method="POST" action="{{ url_for('admin_clear_log') }}" onsubmit="return confirm('Are you sure you want to clear this log? This action cannot be undone.')">
+                        <div class="mb-3">
+                            <label for="logToClear" class="form-label">Select Log to Clear:</label>
+                            <select class="form-select" id="logToClear" name="log_type" required>
+                                <option value="">-- Select Log --</option>
+                                <option value="app">Application Log</option>
+                                <option value="telegram">Telegram Bot Log</option>
+                                <option value="api">API Log</option>
+                                <option value="payment">Payment Log</option>
+                                <option value="webhook">Webhook Log</option>
+                                <option value="all">ALL LOGS</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Clear Selected Log</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let logLines = 50;
+    let autoRefreshInterval = null;
+    
+    // Function to change number of log lines
+    function changeLogLines(lines) {
+        logLines = lines;
+        refreshAllLogs();
+    }
+    
+    // Function to toggle auto refresh
+    function toggleAutoRefresh(enabled) {
+        if (enabled) {
+            autoRefreshInterval = setInterval(refreshAllLogs, 30000); // Refresh every 30 seconds
+        } else {
+            clearInterval(autoRefreshInterval);
+        }
+    }
+    
+    // Function to refresh a specific log
+    function refreshLog(logType) {
+        fetch(`/admin/logs/fetch/${logType}?lines=${logLines}`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById(`${logType}LogContent`).textContent = data;
+            })
+            .catch(error => console.error('Error fetching logs:', error));
+    }
+    
+    // Function to refresh all logs
+    function refreshAllLogs() {
+        refreshLog('app');
+        refreshLog('telegram');
+        refreshLog('api');
+        refreshLog('payment');
+        refreshLog('webhook');
+    }
+    
+    // Initialize log tabs
+    document.addEventListener('DOMContentLoaded', function() {
+        // Refresh logs when tab is clicked
+        const logTabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
+        logTabEls.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', event => {
+                const targetId = event.target.getAttribute('aria-controls');
+                refreshLog(targetId);
+            });
+        });
+        
+        // Initial load
+        refreshLog('app');
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .log-container {
+        height: 500px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 0.85rem;
+        background-color: #212529;
+        color: #f8f9fa;
+        white-space: pre-wrap;
+        border-radius: 0;
+    }
+</style>
+{% endblock %}

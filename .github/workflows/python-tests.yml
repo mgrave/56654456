@@ -1,0 +1,68 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10"]
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: telegram_bot_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest pytest-cov
+    
+    - name: Create .env file
+      run: |
+        echo "TELEGRAM_BOT_TOKEN=123456:DUMMY_TOKEN_FOR_TESTING" > .env
+        echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/telegram_bot_test" >> .env
+        echo "NOWPAYMENTS_API_KEY=DUMMY_KEY_FOR_TESTING" >> .env
+        echo "SESSION_SECRET=test_session_secret" >> .env
+    
+    - name: Run migrations
+      run: |
+        python migrate.py
+    
+    - name: Run tests (when tests are available)
+      run: |
+        # This will be activated once tests are added to the project
+        echo "No tests available yet"
+        # pytest --cov=. --cov-report=xml
+    
+    - name: Check code format with flake8
+      run: |
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics

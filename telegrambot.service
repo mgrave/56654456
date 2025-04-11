@@ -1,0 +1,16 @@
+[Unit]
+Description=Telegram Subscription Bot
+After=network.target postgresql.service
+
+[Service]
+User=repl
+WorkingDirectory=/home/runner/workspace
+Environment=DATABASE_URL=postgresql://telegrambot:telegrambot@localhost/telegrambot
+Environment=SESSION_SECRET=your_secret_key_here
+Environment=TELEGRAM_BOT_TOKEN=your_bot_token_here
+Environment=NOWPAYMENTS_API_KEY=your_api_key_here
+ExecStart=/usr/bin/gunicorn --bind 0.0.0.0:5000 --workers 2 main:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,39 @@
+{
+    "subscription_plans": [
+        {
+            "id": "plan_3month",
+            "name": "3-Month Premium",
+            "description": "Access Premium features for 3 months",
+            "price": 9.99,
+            "currency": "USD"
+        },
+        {
+            "id": "plan_6month",
+            "name": "6-Month Premium",
+            "description": "Access Premium features for 6 months",
+            "price": 17.99,
+            "currency": "USD"
+        },
+        {
+            "id": "plan_1year",
+            "name": "1-Year Premium",
+            "description": "Access Premium features for 1 year",
+            "price": 29.99,
+            "currency": "USD"
+        }
+    ],
+    "bot_admins": [
+        "118679725"
+    ],
+    "support_contact": "@TeleStarz_supprtbot",
+    "bot_token": "7571565305:AAFK3ujTmGSxWeSp-FApX4aF97neXbYFTJ8",
+    "nowpayments_api_key": "521RZ97-NTWMT2W-HMJZGPP-KA5GK85",
+    "bot_enabled": true,
+    "admin_channel": "-1002549640925",
+    "channel_subscription_required": true,
+    "public_channel": "-1002549640925",
+    "notification_enabled": true,
+    "required_channel": "@kjgjhfhfgfjkjkl",
+    "channel_subscription_required": true,
+    "has_sufficient_credit": false
+}
